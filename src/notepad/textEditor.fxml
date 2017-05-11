@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+<GridPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="notepad.textEditorController">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="613.0" prefWidth="475.0">
+         <children>
+            <MenuBar prefHeight="25.0" prefWidth="475.0">
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                        <MenuItem mnemonicParsing="false" onAction="#newFile" text="New File" />
+                    <MenuItem fx:id="MenuItem_OPEN" mnemonicParsing="false" onAction="#openFile" text="Open" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="signIn" mnemonicParsing="false" onAction="#showLogin" text="SignIn" />
+                        <MenuItem fx:id="signOut" disable="true" mnemonicParsing="false" onAction="#logOut" text="SignOut" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#saveToSamePlace" text="Save" />
+                        <MenuItem mnemonicParsing="false" onAction="#saveToPath" text="Save As" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#closeProgram" text="EXIT" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="About" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+              
+                                                                          <TextArea fx:id="TextArea_mainText" layoutX="128.0" layoutY="216.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="586.0" prefWidth="480.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0" />
+            <AnchorPane fx:id="logInPane" layoutX="146.0" layoutY="206.0" prefHeight="200.0" prefWidth="200.0" visible="false">
+               <children>
+                  <TextField fx:id="emailTextField" layoutX="26.0" layoutY="41.0" promptText="user@example.com" text="hossein.eldelbani@hotmail.com" />
+                  <PasswordField fx:id="passPasswordField" layoutX="26.0" layoutY="87.0" promptText="pass" text="12345678" />
+                  <Button fx:id="logIn" layoutX="111.0" layoutY="149.0" mnemonicParsing="false" onAction="#signIn" prefWidth="75.0" text="Login" />
+                  <Button fx:id="signUp" layoutX="14.0" layoutY="149.0" mnemonicParsing="false" onAction="#signUp" prefWidth="75.0" text="Signup" />
+                  <Button fx:id="close" layoutX="154.0" layoutY="2.0" mnemonicParsing="false" onAction="#hideLogin" text="close" />
+                  <Label fx:id="Label_loginStatus" layoutX="75.0" layoutY="123.0" />
+               </children>
+            </AnchorPane>
+         </children>
+      </AnchorPane>
+   </children>
+</GridPane>
