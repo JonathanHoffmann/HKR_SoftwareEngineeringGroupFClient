@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package notepad;
 
 import java.io.BufferedOutputStream;
@@ -53,7 +48,7 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author hosse
+ * @author Hossein Eldelbani and Jonathan Hoffmann
  */
 public class textEditorController implements Initializable {
 
