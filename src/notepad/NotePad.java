@@ -26,7 +26,7 @@ public class NotePad extends Application {
         stage.show();
     }
 
-    //Test Jonathan
+    //Test Jonathan test2
     /**
      * @param args the command line arguments
      */
