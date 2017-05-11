@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 
 /**
  *
- * @author hosse
+ * @author Hossein Eldelbani and Jonathan Hoffmann
  */
 public class NotePad extends Application {
 
@@ -26,11 +26,6 @@ public class NotePad extends Application {
         stage.show();
     }
 
-    //Test Jonathan test2
-    //Test Jonathan Desktop
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
         launch(args);
     }
