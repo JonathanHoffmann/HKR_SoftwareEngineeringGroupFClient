@@ -16,7 +16,7 @@ import javafx.stage.Stage;
  * @author Hossein Eldelbani and Jonathan Hoffmann
  */
 public class NotePad extends Application {
-
+//hasse test 1
     @Override
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("textEditor.fxml"));
