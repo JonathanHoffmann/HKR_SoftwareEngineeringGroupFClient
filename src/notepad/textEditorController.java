@@ -237,7 +237,48 @@ public class textEditorController implements Initializable {
             System.out.println("exception teEditor.java saveToSamePlace method is\n" + ex);
         }
     }
+private void saveToServerMethod(String s, String text_Name) {
+        try {
+            do {
+                text_Name = textName(s, text_Name);
+                if (text_Name.trim().isEmpty()) {
+                    s = "file name shouldnt be empty";
+                }
+            } while (text_Name.trim().isEmpty());
+            String status = sendCommand("save");
+            if (status.equals("listening")) {
+                if (loginSignUp("login", email, password)) {
+                    if (path.equals("")) {
+                        int showConfirmDialog = JOptionPane.showConfirmDialog(null, "Do you want to Save your text First", "save Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                        if (showConfirmDialog == 0) {//yes save
+                            if (path.equals("")) {
+                                saveToPathMethod("Save Your Text Before uploading");
+                            } else {
+                                saveToSamePlace();
+                            }
+                        }
+                        String[] arr = TextArea_mainText.getText().split("\n");
+                        status = sendCommand(text_Name.toLowerCase() + ".txtX" + arr.length);
+                        if (status.equals("listening")) {//upload
+                            status = upload();
+                            if (status.equals("filereceived")) {
+                                System.out.println("uploaded and received");
+                            } else {
+                                System.out.println("error receiving from server side " + status);
+                            }
+                        } else if (status.equals("fileexist")) {//request to change name or overwide
+                            saveToServerMethod("a file with same name exist on server", text_Name.toLowerCase());
+                        }
+                    } else {
+                        System.out.println("error");
+                    }
 
+                }
+            }
+        } catch (Exception ex) {
+            System.out.println("saveToServerMethod exception\n" + ex);
+        }
+    }
     @FXML
     private void saveToPath() {
         getStage();
