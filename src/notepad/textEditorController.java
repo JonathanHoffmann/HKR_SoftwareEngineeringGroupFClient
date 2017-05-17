@@ -61,7 +61,6 @@ public class textEditorController implements Initializable {
     InputStream is;
     FileOutputStream fos = null;
     BufferedOutputStream bos = null;
-    String host="localhost";
     Stage stage;
     boolean firstTime = true, isSaved = false, connected = false;
     String path = "";
@@ -108,22 +107,7 @@ public class textEditorController implements Initializable {
     Label label_Status;
     @FXML
     TabPane tabPane;
-    @FXML
-    RadioButton rb_R;
-    @FXML
-    RadioButton rb_RW;
-    @FXML
-    ListView listView;
-    @FXML
-    Button btn_DELETFILE;
-    @FXML
-    Button btn_EDIT;
-    @FXML
-    Button btn_ADD;
-    @FXML
-    Button btn_UPDATE;
-    @FXML
-    Button btn_OPEN_FROM_SERVER;
+
     @FXML
     TextField txtField_ENTEREMAIL;
 //File Menu
@@ -181,6 +165,8 @@ public class textEditorController implements Initializable {
         if (loginSignUp("login", emailTextField.getText(), passPasswordField.getText())) {
             signIn.setDisable(true);
             signOut.setDisable(false);
+            menu_features.setDisable(false);
+            tab_ManageUsers.setDisable(false);
             showHideAP(logInPane, Boolean.FALSE);
         }
         emailTextField.clear();
@@ -209,6 +195,8 @@ public class textEditorController implements Initializable {
             if (status.equals("disconnected")) {
                 signIn.setDisable(false);
                 signOut.setDisable(true);
+                menu_features.setDisable(true);
+                tab_ManageUsers.setDisable(true);
                 stage.setTitle(title + " logged out");
                 return true;
             }
@@ -237,7 +225,90 @@ public class textEditorController implements Initializable {
             System.out.println("exception teEditor.java saveToSamePlace method is\n" + ex);
         }
     }
-private void saveToServerMethod(String s, String text_Name) {
+
+    @FXML
+    private void saveToPath() {
+        getStage();
+        saveToPathMethod("save as");
+    }
+
+    @FXML
+    private void closeProgram() throws IOException {
+        int showConfirmDialog = JOptionPane.showConfirmDialog(null, "Do you want to continue", "Exit Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (showConfirmDialog == 0) {//yes exit
+            if (logOut()) {
+                if (connected) {
+                    socket.close();
+                }
+                Platform.exit();
+            }
+
+        }
+    }
+
+    //******************************************************************************
+    //Features
+    @FXML
+    private void saveToServer() {
+        saveToServerMethod("Enter the file name", "new document.txt");
+
+    }
+    //******************************************************************************
+    //******************************************************************************
+    //******************************************************************************
+    //TAB 2 MANAGE USERS
+
+    //******************************************************************************
+    //methods
+
+    private String receivedFile() throws IOException {
+        String s = "";
+        int i = 0;
+        String d;
+        while (true) {
+            d = inp.readLine();
+            if (d.equals("endof")) {
+                break;
+            } else if (d.equals("error")) {
+                System.out.println("error receiving");
+                return "error";
+            } else {
+                s += d + "\n";
+                i++;
+            }
+        }
+        System.out.println("received");
+        return s;
+    }
+
+    private String removeNewLine(String s) {
+        String newS = "";
+        boolean first = false;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '\n') {
+                if (first) {
+                    first = false;
+                    continue;
+                }
+                first = true;
+            }
+            newS += s.charAt(i);
+        }
+        return newS;
+    }
+
+ 
+
+    private void switchTab() {
+        SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
+        if (selectionModel.getSelectedIndex() == 0) {
+            selectionModel.select(1);
+        } else {
+            selectionModel.select(0);
+        }
+    }
+
+    private void saveToServerMethod(String s, String text_Name) {
         try {
             do {
                 text_Name = textName(s, text_Name);
@@ -279,26 +350,20 @@ private void saveToServerMethod(String s, String text_Name) {
             System.out.println("saveToServerMethod exception\n" + ex);
         }
     }
-    @FXML
-    private void saveToPath() {
-        getStage();
-        saveToPathMethod("save as");
-    }
 
-    @FXML
-    private void closeProgram() throws IOException {
-        int showConfirmDialog = JOptionPane.showConfirmDialog(null, "Do you want to continue", "Exit Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-        if (showConfirmDialog == 0) {//yes exit
-            if (logOut()) {
-                if (connected) {
-                    socket.close();
-                }
-                Platform.exit();
+    private String upload() {
+        String[] arr = TextArea_mainText.getText().split("\n");
+        String stat = sendCommand("startupload");
+        for (String s : arr) {
+            if (stat.equals("continue")) {
+                sendCommand(s);
+            } else {//error
+                return stat;
             }
-
         }
+        System.out.println("upload completed");
+        return sendCommand("endoffile");// reply should be "filereceived"
     }
-
 
     private FileChooser openFileChooser(String title) {
         FileChooser fileChooser = new FileChooser();
@@ -345,9 +410,11 @@ private void saveToServerMethod(String s, String text_Name) {
                         Label_loginStatus.setText("wrong username or passwrod");
                     } else if (status.contains("connected")) {
                         Label_loginStatus.setText("Connected");
+                        hideLogin();
                         return true;
                     } else if (status.equals("created")) {
                         Label_loginStatus.setText("Created");
+                        hideLogin();
                         return true;
                     } else if (status.equals("emailexist")) {
                         Label_loginStatus.setText("email exist in our DB");
@@ -373,7 +440,6 @@ private void saveToServerMethod(String s, String text_Name) {
         return false;
     }
 
-    
 
     private void saveToPathMethod(String title) {
         FileChooser fileChooser = openFileChooser(title);
@@ -401,9 +467,7 @@ private void saveToServerMethod(String s, String text_Name) {
     }
 
     private void showHideAP(AnchorPane ap, Boolean bool) {
-        
         ap.setVisible(bool);
-        
     }
 
     private String sendCommand(String command) {
@@ -418,11 +482,11 @@ private void saveToServerMethod(String s, String text_Name) {
         return status;
     }
 
-
+ 
     private boolean startConnection() {
         String status;
         try {
-            socket = new Socket(host, 7500);
+            socket = new Socket("localhost", 7500);
             userInput = new BufferedReader(new InputStreamReader(System.in));
             inp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             disIN = new DataInputStream(socket.getInputStream());
