@@ -107,7 +107,22 @@ public class textEditorController implements Initializable {
     Label label_Status;
     @FXML
     TabPane tabPane;
-
+    @FXML
+    RadioButton rb_R;
+    @FXML
+    RadioButton rb_RW;
+    @FXML
+    ListView listView;
+    @FXML
+    Button btn_DELETFILE;
+    @FXML
+    Button btn_EDIT;
+    @FXML
+    Button btn_ADD;
+    @FXML
+    Button btn_UPDATE;
+    @FXML
+    Button btn_OPEN_FROM_SERVER;
     @FXML
     TextField txtField_ENTEREMAIL;
 //File Menu
@@ -168,6 +183,7 @@ public class textEditorController implements Initializable {
             menu_features.setDisable(false);
             tab_ManageUsers.setDisable(false);
             showHideAP(logInPane, Boolean.FALSE);
+            showHideEditPart(false);
         }
         emailTextField.clear();
         passPasswordField.clear();
@@ -258,6 +274,187 @@ public class textEditorController implements Initializable {
     //******************************************************************************
     //TAB 2 MANAGE USERS
 
+    @FXML
+    private void editPartBUTTON() {
+    }
+
+    @FXML
+    private void radioButtonRW(ActionEvent event) {//close signin window
+        rb_R.setSelected(false);
+        access = "rw";
+    }
+
+    @FXML
+    private void radioButtonR() {//close signin window
+        rb_RW.setSelected(false);
+        access = "r";
+    }
+
+    @FXML
+    private void gotListIndex() {
+        int i = listView.getSelectionModel().getSelectedIndex();
+        System.out.println("u selected index " + i);
+        if (i >= 0) {
+            enableButtonsAdministratorTab(i);
+        }
+    }
+
+    @FXML
+    private void deleteButton() {
+        int i = listView.getSelectionModel().getSelectedIndex();
+        if (i >= 0) {
+            String s = sendCommand("deletefile");
+            if (s.equals("listening")) {
+                if (loginSignUp("login", email, password)) {
+                    String status = sendCommand(filesMatrix[i][0]);//sendpath
+                    if (status.equals("deleted")) {
+                        writeDirectories();
+                    } else {//error
+                        label_Status.setText("error occure,try again later");
+                        System.out.println("error occure");
+                    }
+                }
+            }
+        } else {
+            label_Status.setText("select a file first");
+            System.out.println("select a file first");
+        }
+    }
+
+    @FXML
+    private void openSelectedFileFromServer() throws IOException {
+        int i = listView.getSelectionModel().getSelectedIndex();
+        if (i >= 0) {
+            String stat = sendCommand("openfile");
+            if (stat.equals("listening")) {
+                if (loginSignUp("login", email, password)) {
+                    stat = sendCommand(filesMatrix[i][0]);
+                    if (stat.equals("startsending")) {
+                        String s = receivedFile();
+                        if (s.contains("error")) {
+                            System.out.println("error");
+                        } else {
+                            int showConfirmDialog = JOptionPane.showConfirmDialog(null, "Do you want to Save your text First", "save Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                            if (showConfirmDialog == 0) {//yes save
+                                if (path.equals("")) {
+                                    saveToPathMethod("Save Your Text Before Opening from server");
+                                } else {
+                                    saveToSamePlace();
+                                }
+                            }
+                            TextArea_mainText.setText(removeNewLine(s));
+                            switchTab();
+                        }
+                    } else {//accessdenied or any other than startsending
+                        System.out.println("error");
+                    }
+                }
+            }
+        } else {
+            label_Status.setText("select a file first");
+            System.out.println("select file first");
+        }
+    }
+
+    @FXML
+    private void updateSelectedFile() {
+        int i = listView.getSelectionModel().getSelectedIndex();
+        if (i >= 0) {
+            if (!filesMatrix[i][1].equals("r")) {//if the access is not read only
+                if (filesMatrix[i][2].equals("yes")) {//so i have see the last update
+                    String titre = "";
+                    int showConfirmDialog = JOptionPane.showConfirmDialog(null, "Do you want to Save your text First", "save Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (showConfirmDialog == 0) {//yes save
+                        if (path.equals("")) {
+                            saveToPathMethod("Save Your Text Before uploading");
+                        } else {
+                            saveToSamePlace();
+                        }
+                        if (!path.equals("")) {//save continued
+                            titre = "Do you want to upload your saved text file";
+                        }
+                    } else {//no i dont want to save
+                        titre = "Do you want to upload your unsaved text file";
+                    }
+                    int showConfirmDialog1 = JOptionPane.showConfirmDialog(null, titre, "Upload Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (showConfirmDialog1 == 0) {//yes upload
+                        String stat = sendCommand("push");
+                        if (stat.equals("listening")) {
+                            if (loginSignUp("login", email, password)) {
+                                String[] arr = TextArea_mainText.getText().split("\n");
+                                stat = sendCommand(filesMatrix[i][0] + "X" + arr.length);
+                                if (stat.equals("startsending")) {
+                                    if (sendFileUpdate(arr)) {
+                                        label_Status.setText("upload completed");
+                                    }
+                                } else if (stat.equals("youdonthaveaccess")) {
+                                    label_Status.setText("access denied");
+                                } else if (stat.equals("updatefirst")) {
+                                    label_Status.setText("update first");
+                                    writeDirectories();//refresh page
+                                } else {
+                                    label_Status.setText("error try again");
+                                }
+
+                            } else {
+                                label_Status.setText("error try again");
+                            }
+                        }
+                    } else {//no i dont want to upload
+                        label_Status.setText("upload canceled");
+                    }
+
+                } else {//i havent see the last update
+                    label_Status.setText("download the last update first");
+                    System.out.println("download the last update first");
+                }
+            } else {
+                label_Status.setText("you dont have acces to update this file");
+            }
+        } else {
+            label_Status.setText("select a file first");
+            System.out.println("select a file first");
+        }
+
+    }
+
+    @FXML
+    private void writeDirectories() {
+        String stat = sendCommand("getfiles");
+        if (stat.equals("listening")) {
+            try {
+                String s = "error try again";
+                if (loginSignUp("login", email, password)) {
+                    s = receivedFile();
+                    if (s.contains("error")) {
+                        s = "error while loading\ntry again";
+                    }
+                }
+                String[] arr = s.split("\n");
+                filesMatrix = new String[arr.length][5];
+                ArrayList<String> list = new ArrayList<>();
+                for (int i = 0; i < arr.length; i++) {
+                    String[] split = arr[i].split("X");
+                    list.add(split[0] + "\t\tAccess: " + split[1] + "\t\tUpdated: " + split[2] + "\t\tCreated By: " + split[3] + "\t\tUpdated By: " + split[4]);
+                    for (int k = 0; k < 5; k++) {
+                        filesMatrix[i][k] = split[k];
+                    }
+                }
+                for (int i = 0; i < arr.length; i++) {
+                    for (int j = 0; j < 5; j++) {
+                        System.out.print(filesMatrix[i][j] + " | ");
+                    }
+                    System.out.println("");
+                }
+                System.out.println(list);
+                ObservableList<String> items = FXCollections.observableArrayList(list);
+                listView.setItems(items);
+
+            } catch (Exception ex) {
+                System.out.println("writeDirectory method error\n" + ex);
+            }
+        }
+    }
     //******************************************************************************
     //methods
 
@@ -297,7 +494,38 @@ public class textEditorController implements Initializable {
         return newS;
     }
 
- 
+    private void enableButtonsAdministratorTab(int i) {
+        try {
+            String s = filesMatrix[i][1];
+            btn_OPEN_FROM_SERVER.setDisable(false);
+            if (s.equals("ad")) {//admin
+                btn_UPDATE.setDisable(false);
+                btn_ADD.setDisable(false);
+                btn_DELETFILE.setDisable(false);
+                btn_EDIT.setDisable(false);
+            } else if (s.equals("rw")) {//read write
+                btn_UPDATE.setDisable(false);
+                btn_ADD.setDisable(false);
+                btn_DELETFILE.setDisable(true);
+                btn_EDIT.setDisable(true);
+            } else if (s.equals("r")) {//read
+                btn_UPDATE.setDisable(true);
+                btn_ADD.setDisable(false);
+                btn_DELETFILE.setDisable(true);
+                btn_EDIT.setDisable(true);
+                txtField_ENTEREMAIL.setVisible(false);
+            } else {//any else in case of errors
+                btn_UPDATE.setDisable(true);
+                btn_ADD.setDisable(true);
+                btn_DELETFILE.setDisable(true);
+                btn_EDIT.setDisable(true);
+                btn_OPEN_FROM_SERVER.setDisable(true);
+            }
+        } catch (Exception ex) {
+            System.out.println("exception matrix \n" + ex);
+        }
+
+    }
 
     private void switchTab() {
         SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
@@ -410,11 +638,9 @@ public class textEditorController implements Initializable {
                         Label_loginStatus.setText("wrong username or passwrod");
                     } else if (status.contains("connected")) {
                         Label_loginStatus.setText("Connected");
-                        hideLogin();
                         return true;
                     } else if (status.equals("created")) {
                         Label_loginStatus.setText("Created");
-                        hideLogin();
                         return true;
                     } else if (status.equals("emailexist")) {
                         Label_loginStatus.setText("email exist in our DB");
@@ -440,6 +666,13 @@ public class textEditorController implements Initializable {
         return false;
     }
 
+    private boolean sendFileUpdate(String[] arr) {
+        for (int i = 0; i < arr.length; i++) {
+            printStream.print(arr[i] + "\r\n");
+        }
+        String status = sendCommand("endoffile");
+        return status.equals("filereceived");
+    }
 
     private void saveToPathMethod(String title) {
         FileChooser fileChooser = openFileChooser(title);
@@ -482,7 +715,12 @@ public class textEditorController implements Initializable {
         return status;
     }
 
- 
+    private void showHideEditPart(boolean stat) {
+        rb_RW.setVisible(stat);
+        rb_R.setVisible(stat);
+        txtField_ENTEREMAIL.setVisible(stat);
+    }
+
     private boolean startConnection() {
         String status;
         try {

@@ -68,6 +68,28 @@
                   </AnchorPane>
             </content>
           </Tab>
+          <Tab fx:id="tab_ManageUsers" closable="false" disable="true" onSelectionChanged="#writeDirectories" text="Administrator">
+            <content>
+              <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Separator layoutX="14.0" layoutY="304.0" prefHeight="7.0" prefWidth="452.0" />
+                        <Text fx:id="textTitle" layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Files List Controller" />
+                        <TextField fx:id="txtField_ENTEREMAIL" layoutX="155.0" layoutY="335.0" promptText="write email here" />
+                        <Button fx:id="btn_OPEN_FROM_SERVER" disable="true" layoutX="168.0" layoutY="400.0" mnemonicParsing="false" onAction="#openSelectedFileFromServer" prefHeight="25.0" prefWidth="120.0" text="open" />
+                        <Button fx:id="btn_DELETFILE" disable="true" layoutX="168.0" layoutY="436.0" mnemonicParsing="false" onAction="#deleteButton" prefHeight="25.0" prefWidth="120.0" text="delete" />
+                        <Button layoutX="168.0" layoutY="572.0" mnemonicParsing="false" onAction="#writeDirectories" prefHeight="25.0" prefWidth="120.0" text="refresh" />
+                        <RadioButton fx:id="rb_R" layoutX="153.0" layoutY="363.0" mnemonicParsing="false" onAction="#radioButtonR" selected="true" text="read" />
+                        <RadioButton fx:id="rb_RW" layoutX="230.0" layoutY="363.0" mnemonicParsing="false" onAction="#radioButtonRW" text="readWrite" />
+                        <Button fx:id="btn_EDIT" disable="true" layoutX="168.0" layoutY="508.0" mnemonicParsing="false" onAction="#editPartBUTTON" prefHeight="25.0" prefWidth="120.0" text="edit participiants" />
+                        <Button fx:id="btn_ADD" disable="true" layoutX="168.0" layoutY="540.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="add new" />
+                        <Separator orientation="VERTICAL" prefHeight="200.0" />
+                        <Button fx:id="btn_UPDATE" disable="true" layoutX="168.0" layoutY="472.0" mnemonicParsing="false" onAction="#updateSelectedFile" prefHeight="25.0" prefWidth="120.0" text="update" />
+                        <ListView fx:id="listView" layoutX="13.0" layoutY="30.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onMouseClicked="#gotListIndex" prefHeight="273.0" prefWidth="455.0" AnchorPane.bottomAnchor="308.0" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="30.0" />
+                        <Label fx:id="label_Status" layoutX="214.0" layoutY="310.0" text="Label" textAlignment="JUSTIFY" textFill="RED" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
         </tabs>
       </TabPane>
    </children>
